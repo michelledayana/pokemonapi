@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Buscador de Pokémon</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+    }
+    input {
+      padding: 10px;
+      width: 60%;
+    }
+    button {
+      padding: 10px;
+    }
+    .card {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Buscador de Pokémon</h1>
+    <input type="text" id="pokemonInput" placeholder="Escribe un nombre (ej. pikachu)" />
+    <button onclick="buscarPokemon()">Buscar</button>
+
+    <div id="pokemonInfo" class="card hidden">
+      <h2 id="nombrePokemon"></h2>
+      <img id="imagenPokemon" alt="Imagen del Pokémon" />
+      <p><strong>Tipo:</strong> <span id="tipoPokemon"></span></p>
+      <p><strong>Altura:</strong> <span id="alturaPokemon"></span> dm</p>
+      <p><strong>Peso:</strong> <span id="pesoPokemon"></span> hg</p>
+    </div>
+  </div>
+
+  <script>
+    async function buscarPokemon() {
+      const nombre = document.getElementById("pokemonInput").value.toLowerCase();
+      const infoDiv = document.getElementById("pokemonInfo");
+      const nombrePokemon = document.getElementById("nombrePokemon");
+      const imagenPokemon = document.getElementById("imagenPokemon");
+      const tipoPokemon = document.getElementById("tipoPokemon");
+      const alturaPokemon = document.getElementById("alturaPokemon");
+      const pesoPokemon = document.getElementById("pesoPokemon");
+
+      try {
+        const respuesta = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
+        if (!respuesta.ok) throw new Error("Pokémon no encontrado");
+
+        const datos = await respuesta.json();
+
+        nombrePokemon.textContent = datos.name.toUpperCase();
+        imagenPokemon.src = datos.sprites.front_default;
+        tipoPokemon.textContent = datos.types.map(t => t.type.name).join(", ");
+        alturaPokemon.textContent = datos.height;
+        pesoPokemon.textContent = datos.weight;
+
+        infoDiv.classList.remove("hidden");
+      } catch (error) {
+        alert(error.message);
+        infoDiv.classList.add("hidden");
+      }
+    }
+  </script>
+</body>
+</html>
