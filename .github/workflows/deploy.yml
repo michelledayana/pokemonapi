@@ -3,31 +3,32 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  # Cambia si usas otra rama
+      - main  # o la rama que uses
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up SSH key
+      - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Add EC2 to known_hosts
+      - name: Add EC2 host to known_hosts
         run: |
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ec2-user/mi-app  # Asegúrate que esta ruta exista y tenga el repo clonado
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ec2-user/mi-app  # <-- ajusta a la ruta real de tu app
             git pull origin main
-            npm install                # Solo si usas Node.js
-            pm2 restart app           # Reemplaza con tu comando si usas otro (como docker-compose, uvicorn, etc)
+            npm install              # <-- o pip install, composer, etc.
+            pm2 restart app          # <-- o systemctl restart, uvicorn, etc.
           EOF
+
